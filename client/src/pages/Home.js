@@ -1,5 +1,5 @@
 import axios from "../axios";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { Link } from "react-router-dom";
@@ -8,14 +8,20 @@ import "./Home.css";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProducts } from "../features/productSlice";
 import ProductPreview from "../components/ProductPreview";
+import Loading from "../components/Loading";
 
 function Home() {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products);
   const lastProducts = products.slice(0, 8);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
+    setLoading(true);
     axios.get("/products").then(({ data }) => dispatch(updateProducts(data)));
+    setLoading(false);
   }, []);
+  if (loading) return <Loading />;
+  if (products.length == 0) return <Loading />;
   return (
     <div>
       <img
@@ -24,12 +30,12 @@ function Home() {
       />
       <div className="featured-products-container container mt-4">
         <h2>Latest Products</h2>
-
         <div className="d-flex justify-content-center flex-wrap">
           {lastProducts.map((product) => (
             <ProductPreview {...product} />
           ))}
         </div>
+
         <div>
           <Link
             to="/category/all"
@@ -42,10 +48,6 @@ function Home() {
             See more {">>"}
           </Link>
         </div>
-      </div>
-
-      <div className="sale__banner--container mt-4">
-        <img src="https://res.cloudinary.com/learn-code-10/image/upload/v1654093280/xkia6f13xxlk5xvvb5ed.png" />
       </div>
       <div className="recent-products-container container mt-4">
         <h2>Categories</h2>
